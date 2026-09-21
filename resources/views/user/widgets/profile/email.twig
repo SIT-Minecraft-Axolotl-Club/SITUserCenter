@@ -1,0 +1,15 @@
+<form class="card card-warning" method="post" id="change-email">
+  <div class="card-header">
+    <h3 class="card-title">{{ trans('user.profile.email.title') }}</h3>
+  </div>
+  <div class="card-body">
+    <div class="form-group">
+      <label class="text-muted small" style="font-weight: 500;">当前邮箱</label>
+      <div style="border-bottom: 2px solid #e0e0e0; padding: 8px 0; font-size: 1.1rem; display: flex; align-items: center; justify-content: space-between;">
+        <span style="color: #333; font-weight: 500;">{{ user.email }}</span>
+      </div>
+      <input type="hidden" name="email" value="{{ user.email }}">
+      <small class="text-muted" style="margin-top: 6px; display: block;">如需修改请联系管理员</small>
+    </div>
+  </div>
+</form>
