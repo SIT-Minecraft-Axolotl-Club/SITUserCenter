@@ -23,8 +23,8 @@ class PlayersManagementController extends Controller
             $currentUser = $request->user();
 
             if (
-                $owner->uid !== $currentUser->uid &&
-                $owner->permission >= $currentUser->permission
+                $owner->uid !== $currentUser->uid
+                && $owner->permission >= $currentUser->permission
             ) {
                 return json(trans('admin.players.no-permission'), 1)
                     ->setStatusCode(403);
@@ -44,7 +44,7 @@ class PlayersManagementController extends Controller
     public function name(
         Player $player,
         Request $request,
-        Dispatcher $dispatcher
+        Dispatcher $dispatcher,
     ) {
         $name = $request->validate([
             'player_name' => [
@@ -70,7 +70,7 @@ class PlayersManagementController extends Controller
     public function owner(
         Player $player,
         Request $request,
-        Dispatcher $dispatcher
+        Dispatcher $dispatcher,
     ) {
         $uid = $request->validate(['uid' => 'required|integer'])['uid'];
 
@@ -96,7 +96,7 @@ class PlayersManagementController extends Controller
     public function texture(
         Player $player,
         Request $request,
-        Dispatcher $dispatcher
+        Dispatcher $dispatcher,
     ) {
         $data = $request->validate([
             'tid' => 'required|integer',
@@ -123,7 +123,7 @@ class PlayersManagementController extends Controller
 
     public function delete(
         Player $player,
-        Dispatcher $dispatcher
+        Dispatcher $dispatcher,
     ) {
         $dispatcher->dispatch('player.deleting', [$player]);
 

@@ -77,7 +77,7 @@ class ReportController extends Controller
     public function review(
         Report $report,
         Request $request,
-        Dispatcher $dispatcher
+        Dispatcher $dispatcher,
     ) {
         $data = $request->validate([
             'action' => ['required', Rule::in(['delete', 'ban', 'reject'])],
@@ -88,9 +88,9 @@ class ReportController extends Controller
 
         if ($action == 'reject') {
             if (
-                $report->informer &&
-                ($score = option('reporter_score_modification', 0)) > 0 &&
-                $report->status == Report::PENDING
+                $report->informer
+                && ($score = option('reporter_score_modification', 0)) > 0
+                && $report->status == Report::PENDING
             ) {
                 $report->informer->score -= $score;
                 $report->informer->save();
@@ -151,9 +151,9 @@ class ReportController extends Controller
     public static function returnScore($report)
     {
         if (
-            $report->status == Report::PENDING &&
-            ($score = option('reporter_score_modification', 0)) < 0 &&
-            $report->informer
+            $report->status == Report::PENDING
+            && ($score = option('reporter_score_modification', 0)) < 0
+            && $report->informer
         ) {
             $report->informer->score -= $score;
             $report->informer->save();

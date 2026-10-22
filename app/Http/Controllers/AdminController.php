@@ -53,7 +53,7 @@ class AdminController extends Controller
 
         $grouping = fn ($field) => fn ($item) => Carbon::parse($item->$field)->isoFormat('l');
         $mapping = fn ($item) => count($item);
-        $aligning = fn ($data) => fn ($day) => ($data->get($day) ?? 0);
+        $aligning = fn ($data) => fn ($day) => $data->get($day) ?? 0;
 
         /** @var Collection */
         $userRegistration = User::where('register_at', '>=', $oneMonthAgo)
@@ -86,7 +86,7 @@ class AdminController extends Controller
         Request $request,
         PluginManager $plugins,
         Filesystem $filesystem,
-        Filter $filter
+        Filter $filter,
     ) {
         $db = config('database.connections.'.config('database.default'));
         $dbType = Arr::get([

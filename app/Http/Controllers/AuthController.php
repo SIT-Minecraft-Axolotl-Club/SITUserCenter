@@ -8,16 +8,16 @@ use App\Mail\ForgotPassword;
 use App\Models\Player;
 use App\Models\User;
 use App\Rules;
-use Auth;
 use Blessing\Filter;
 use Blessing\Rejection;
-use Cache;
 use Carbon\Carbon;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Request;
-use Mail;
-use Session;
-use URL;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
 use Vectorface\Whip\Whip;
 
 class AuthController extends Controller
@@ -50,7 +50,7 @@ class AuthController extends Controller
         Request $request,
         Rules\Captcha $captcha,
         Dispatcher $dispatcher,
-        Filter $filter
+        Filter $filter,
     ) {
         $data = $request->validate([
             'identification' => 'required',
@@ -151,7 +151,7 @@ class AuthController extends Controller
         Request $request,
         Rules\Captcha $captcha,
         Dispatcher $dispatcher,
-        Filter $filter
+        Filter $filter,
     ) {
         $can = $filter->apply('can_register', null);
         if ($can instanceof Rejection) {
@@ -176,8 +176,8 @@ class AuthController extends Controller
         $dispatcher->dispatch('auth.registration.attempt', [$data]);
 
         if (
-            option('register_with_player_name') &&
-            Player::where('name', $playerName)->count() > 0
+            option('register_with_player_name')
+            && Player::where('name', $playerName)->count() > 0
         ) {
             return json(trans('user.player.add.repeated'), 1);
         }
@@ -248,7 +248,7 @@ class AuthController extends Controller
         Request $request,
         Rules\Captcha $captcha,
         Dispatcher $dispatcher,
-        Filter $filter
+        Filter $filter,
     ) {
         $data = $request->validate([
             'email' => 'required|email',

@@ -11,19 +11,20 @@ class Kernel extends HttpKernel
      *
      * These middleware are run during every request to your application.
      *
-     * @var array
+     * @var array<int, class-string|string>
      */
     protected $middleware = [
-        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+        \Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \Illuminate\Foundation\Http\Middleware\TrimStrings::class,
-        \App\Http\Middleware\ConvertEmptyStringsToNull::class,
-        \App\Http\Middleware\DetectLanguagePrefer::class,
+        Middleware\ConvertEmptyStringsToNull::class,
+        Middleware\DetectLanguagePrefer::class,
     ];
 
     /**
      * The application's route middleware groups.
      *
-     * @var array
+     * @var array<string, array<int, class-string|string>>
      */
     protected $middlewareGroups = [
         'web' => [
@@ -32,39 +33,38 @@ class Kernel extends HttpKernel
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
-            \App\Http\Middleware\EnforceEverGreen::class,
-            \App\Http\Middleware\RedirectToSetup::class,
-            'bindings',
+            Middleware\EnforceEverGreen::class,
+            Middleware\RedirectToSetup::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
         'api' => [
-            'bindings',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
         'authorize' => [
             'auth:web',
-            \App\Http\Middleware\RejectBannedUser::class,
-            \App\Http\Middleware\EnsureEmailFilled::class,
-            \App\Http\Middleware\FireUserAuthenticated::class,
+            Middleware\RejectBannedUser::class,
+            Middleware\EnsureEmailFilled::class,
+            Middleware\FireUserAuthenticated::class,
         ],
     ];
 
     /**
-     * The application's route middleware.
+     * The application's middleware aliases.
      *
-     * These middleware may be assigned to groups or used individually.
+     * Aliases may be used instead of class names to conveniently assign middleware to routes and groups.
      *
-     * @var array
+     * @var array<string, class-string|string>
      */
-    protected $routeMiddleware = [
-        'auth' => \App\Http\Middleware\Authenticate::class,
-        'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    protected $middlewareAliases = [
+        'auth' => Middleware\Authenticate::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'role' => \App\Http\Middleware\CheckRole::class,
-        'setup' => \App\Http\Middleware\CheckInstallation::class,
+        'guest' => Middleware\RedirectIfAuthenticated::class,
+        'role' => Middleware\CheckRole::class,
+        'setup' => Middleware\CheckInstallation::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'verified' => \App\Http\Middleware\CheckUserVerified::class,
+        'verified' => Middleware\CheckUserVerified::class,
         'scope' => \Laravel\Passport\Http\Middleware\CheckForAnyScope::class,
         'scopes' => \Laravel\Passport\Http\Middleware\CheckScopes::class,
         'auth-only' => \App\Http\Middleware\RejectAuthOnlyUser::class,

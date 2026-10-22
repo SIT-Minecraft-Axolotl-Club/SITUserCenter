@@ -7,10 +7,10 @@ check:
   anonymous: Acceso ilegal. Favor iniciarse primero.
   verified: Debes verificar su correo electrónico para accesar esta página.
   admin: Sólo administradores están permitidos accesar esta página.
-  banned: Estás baneado. Favor contactar el administrador.
+  banned: Estás baneado de este sitio web. Porfavor, contacta con el administrador.
 register:
   title: Crear cuenta
-  message: '¡Bienvenidos a :sitename!'
+  message: '¡Bienvenido a :sitename!'
   success: Su cuenta fue creada. Redirigiendo...
   max: No puede registrar más de :regs cuentas.
 forgot:
@@ -34,7 +34,7 @@ reset:
   button: Restablecer
   invalid: Enlace inválido.
   expired: Este enlace ha caducado.
-  message: ':username, reset your password here.'
+  message: ':username, restablezca su contraseña aquí.'
   success: Contraseña restablecida con éxito.
 bind:
   title: Enlazar email
@@ -56,30 +56,30 @@ oauth:
     title: Autorización
     introduction: Una aplicación de terceros ":name" está solicitando permiso para acceder a su cuenta.
     button: Autorizar
-    permissions: Permissions
+    permissions: Permisos
   scope:
     user:
-      read: Sign you in and read your profile
+      read: Inicia sesión y lee tu perfil
     notification:
-      read: Allows the app to read your notifications.
-      readwrite: Allows the app to send notifications.
+      read: Permite a la aplicación leer tus notificaciones.
+      readwrite: Permite que la aplicación envíe notificaciones.
     player:
-      read: Allows the app to read your players.
-      readwrite: Allows the app to create, read, update and delete your players.
+      read: Permite que la aplicación lea sus jugadores.
+      readwrite: Permite a la aplicación crear, leer, actualizar y eliminar a sus jugadores.
     closet:
-      read: Allows the app to read your closet items.
-      readwrite: Allows the app to create, read, update and delete your closet items.
+      read: Permite que la aplicación lea los objetos de tu armario.
+      readwrite: Permite que la aplicación cree, lea, actualice y elimine los objetos del armario.
     users-management:
-      read: Allows the app to read site's users.
-      readwrite: Allows the app to create, read, update and delete site's users.
+      read: Permite que la aplicación lea los usuarios del sitio.
+      readwrite: Permite a la aplicación crear, leer, actualizar y eliminar usuarios del sitio.
     players-management:
-      read: Allows the app to read site's players.
-      readwrite: Allows the app to create, read, update and delete site's players.
+      read: Permite que la aplicación lea los jugadores del sitio.
+      readwrite: Permite a la aplicación crear, leer, actualizar y eliminar los jugadores del sitio.
     closet-management:
-      read: Allows the app to read user's of your site closet items.
-      readwrite: Allows the app to create, read, update and delete user's closet items.
+      read: Permite que la aplicación lea los objetos del armario de tu sitio.
+      readwrite: Permite a la aplicación crear, leer, actualizar y eliminar los objetos del armario del usuario.
     reports-management:
-      read: Allows the app to read user's reports.
-      readwrite: Allows the app to read and review user's reports.
+      read: Permite a la aplicación leer los informes del usuario.
+      readwrite: Permite a la aplicación leer y revisar los informes de los usuarios.
 email: Email
 register-link: Registrar una nueva cuenta

@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
+use App\Services\Facades\Option;
 use BadMethodCallException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Option;
 use ReflectionClass;
 
 /**
@@ -38,7 +38,7 @@ class OptionForm
 
     protected $hookBefore;
     protected $hookAfter;
-    protected $alwaysCallback = null;
+    protected $alwaysCallback;
 
     protected $renderWithoutTable = false;
     protected $renderInputTagsOnly = false;
@@ -59,7 +59,7 @@ class OptionForm
     }
 
     /**
-     * @throws \BadMethodCallException
+     * @throws BadMethodCallException
      */
     public function __call(string $method, array $params): OptionFormItem
     {
@@ -105,7 +105,6 @@ class OptionForm
      * Add a piece of data to the option form.
      *
      * @param string|array $key
-     * @param mixed        $value
      */
     public function with($key, $value = null): self
     {
@@ -204,7 +203,7 @@ class OptionForm
     /**
      * Handle the HTTP post request and update modified options.
      */
-    public function handle(callable $callback = null): self
+    public function handle(?callable $callback = null): self
     {
         $request = request();
         $allPostData = $request->all();
@@ -352,7 +351,7 @@ class OptionFormItem
 
     public $format;
 
-    public $value = null;
+    public $value;
 
     public $disabled;
 

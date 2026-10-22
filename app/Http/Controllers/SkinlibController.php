@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Texture;
 use App\Models\User;
-use Auth;
 use Blessing\Filter;
 use Blessing\Rejection;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -12,10 +11,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Intervention\Image\Facades\Image;
 use League\CommonMark\GithubFlavoredMarkdownConverter;
-use Storage;
 
 class SkinlibController extends Controller
 {
@@ -189,7 +190,7 @@ class SkinlibController extends Controller
     public function handleUpload(
         Request $request,
         Filter $filter,
-        Dispatcher $dispatcher
+        Dispatcher $dispatcher,
     ) {
         $file = $request->file('file');
         if ($file && !$file->isValid()) {
@@ -219,6 +220,16 @@ class SkinlibController extends Controller
 
         $type = $data['type'];
         $size = getimagesize($file);
+
+        $maxWidth = option('max_texture_width', 8192);
+        if ($size[0] > $maxWidth) {
+            $message = trans('skinlib.upload.too-wide', [
+                'width' => $size[0],
+                'maxWidth' => $maxWidth,
+            ]);
+
+            return json($message, 1);
+        }
 
         if ($size[0] % 64 != 0 || $size[1] % 32 != 0) {
             $message = trans('skinlib.upload.invalid-size', [
@@ -253,8 +264,17 @@ class SkinlibController extends Controller
             }
         }
 
-        $hash = hash_file('sha256', $file);
-        $hash = $filter->apply('uploaded_texture_hash', $hash, [$file]);
+        $image = Image::make($file);
+        $imagick = $image->getCore();
+        $imagick->setOption('png:compression-filter', '0');
+        $imagick->setOption('png:compression-level', '9');
+        $imagick->setOption('png:compression-strategy', '0');
+        $imagick->setOption('png:exclude-chunk', 'all');
+        $imagick->stripImage();
+        $sanitized = $image->encode('png')->getEncoded();
+
+        $hash = hash('sha256', $image->encoded);
+        $hash = $filter->apply('uploaded_texture_hash', $hash, [$image]);
 
         /** @var User */
         $user = Auth::user();
@@ -270,11 +290,11 @@ class SkinlibController extends Controller
             return json(trans('skinlib.upload.repeated'), 2, ['tid' => $duplicated->tid]);
         }
 
-        $size = ceil($file->getSize() / 1024);
+        $fileSize = ceil(strlen($sanitized) / 1024);
         $isPublic = is_string($data['public'])
             ? $data['public'] === '1'
             : $data['public'];
-        $cost = $size * (
+        $cost = $fileSize * (
             $isPublic
             ? option('score_per_storage')
             : option('private_score_per_storage')
@@ -285,13 +305,13 @@ class SkinlibController extends Controller
             return json(trans('skinlib.upload.lack-score'), 1);
         }
 
-        $dispatcher->dispatch('texture.uploading', [$file, $name, $hash]);
+        $dispatcher->dispatch('texture.uploading', [$image, $name, $hash]);
 
         $texture = new Texture();
         $texture->name = $name;
         $texture->type = $type;
         $texture->hash = $hash;
-        $texture->size = $size;
+        $texture->size = $fileSize;
         $texture->public = $isPublic;
         $texture->uploader = $user->uid;
         $texture->likes = 1;
@@ -300,14 +320,14 @@ class SkinlibController extends Controller
         /** @var FilesystemAdapter */
         $disk = Storage::disk('textures');
         if ($disk->missing($hash)) {
-            $file->storePubliclyAs('', $hash, ['disk' => 'textures']);
+            $disk->put($hash, $sanitized);
         }
 
         $user->score -= $cost;
         $user->closet()->attach($texture->tid, ['item_name' => $name]);
         $user->save();
 
-        $dispatcher->dispatch('texture.uploaded', [$texture, $file]);
+        $dispatcher->dispatch('texture.uploaded', [$texture, $image]);
 
         return json(trans('skinlib.upload.success', ['name' => $name]), 0, [
             'tid' => $texture->tid,
@@ -386,7 +406,7 @@ class SkinlibController extends Controller
         Request $request,
         Dispatcher $dispatcher,
         Filter $filter,
-        Texture $texture
+        Texture $texture,
     ) {
         $data = $request->validate(['name' => [
             'required',
@@ -416,7 +436,7 @@ class SkinlibController extends Controller
         Request $request,
         Dispatcher $dispatcher,
         Filter $filter,
-        Texture $texture
+        Texture $texture,
     ) {
         $data = $request->validate([
             'type' => ['required', Rule::in(['steve', 'alex', 'cape'])],

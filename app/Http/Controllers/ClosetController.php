@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Texture;
 use App\Models\User;
-use Auth;
 use Blessing\Filter;
 use Blessing\Rejection;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ClosetController extends Controller
 {
@@ -75,7 +75,7 @@ class ClosetController extends Controller
     public function add(
         Request $request,
         Dispatcher $dispatcher,
-        Filter $filter
+        Filter $filter,
     ) {
         ['tid' => $tid, 'name' => $name] = $request->validate([
             'tid' => 'required|integer',
@@ -132,7 +132,7 @@ class ClosetController extends Controller
         Request $request,
         Dispatcher $dispatcher,
         Filter $filter,
-        $tid
+        $tid,
     ) {
         ['name' => $name] = $request->validate(['name' => 'required']);
         /** @var User */

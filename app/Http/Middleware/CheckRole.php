@@ -2,16 +2,17 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 
 class CheckRole
 {
     protected $roles = [
-        'banned' => -1,
-        'normal' => 0,
-        'admin' => 1,
-        'super-admin' => 2,
+        'banned' => User::BANNED,
+        'normal' => User::NORMAL,
+        'admin' => User::ADMIN,
+        'super-admin' => User::SUPER_ADMIN,
     ];
 
     public function handle(Request $request, Closure $next, $role)

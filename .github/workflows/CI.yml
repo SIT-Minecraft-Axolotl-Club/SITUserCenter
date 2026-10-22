@@ -1,0 +1,155 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - dev
+    paths-ignore:
+      - 'resources/lang/**'
+      - '**.md'
+  pull_request:
+    branches:
+      - dev
+    paths-ignore:
+      - 'resources/lang/**'
+      - '**.md'
+
+jobs:
+  php-lint:
+    name: PHP Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          coverage: none
+          extensions: mbstring, dom, fileinfo, gd, imagick
+      - name: Install dependencies
+        run: |
+          composer install --prefer-dist --no-progress
+      - name: Prepare
+        run: |
+          cp .env.example .env
+          mkdir -p resources/views/overrides
+      - name: Validate Twig templates
+        run: php artisan twig:lint -v
+      - name: Check coding style
+        run: ./vendor/bin/php-cs-fixer fix --dry-run --stop-on-violation --diff --format=txt
+  php:
+    name: PHP ${{ matrix.php }} Tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup PHP only
+        uses: shivammathur/setup-php@v2
+        if: matrix.php != '8.3'
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          extensions: mbstring, dom, fileinfo, sqlite, gd, zip, imagick
+      - name: Setup PHP with Xdebug
+        uses: shivammathur/setup-php@v2
+        if: matrix.php == '8.3'
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: xdebug
+          extensions: mbstring, dom, fileinfo, sqlite, gd, zip, imagick
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+      - name: Install Composer dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+      - name: Run tests only
+        if: matrix.php != '8.3'
+        run: ./vendor/bin/phpunit
+      - name: Run tests with coverage report
+        if: matrix.php == '8.3'
+        run: ./vendor/bin/phpunit --coverage-clover=coverage.xml
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v1
+        if: matrix.php == '8.3' && success()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: github-actions
+  lint:
+    name: Frontend Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Run checks
+        run: |
+          yarn lint
+          yarn fmt:check
+          yarn type:check
+  jest:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: yarn
+      - name: Run tests
+        run: yarn test --coverage
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: github-actions
+  build:
+    name: Snapshot Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          coverage: none
+          extensions: mbstring, dom, fileinfo, sqlite, gd, zip, imagick
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Cache Node dependencies
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-yarn-lock-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-lock-
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+      - name: Install dependencies
+        run: |
+          composer install --prefer-dist --no-progress --no-dev
+          yarn install --frozen-lockfile
+      - name: Build frontend
+        run: |
+          yarn build
+          cp resources/assets/src/images/bg.webp public/app/
+          cp resources/assets/src/images/favicon.ico public/app/
+      - uses: benjlevesque/short-sha@v3.0
+        id: short-sha
+      - name: Archive release
+        run: zip -9 -r blessing-skin-server-${{ steps.short-sha.outputs.sha }}.zip app bootstrap config database plugins public resources/lang resources/views resources/misc/textures routes storage vendor .env.example artisan LICENSE README.md README-zh.md index.html
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: blessing-skin-server-${{ steps.short-sha.outputs.sha }}.zip
+          path: blessing-skin-server-${{ steps.short-sha.outputs.sha }}.zip
