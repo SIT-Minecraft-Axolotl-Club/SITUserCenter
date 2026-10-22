@@ -1,0 +1,25 @@
+name: Publish 6.0.3
+
+on:
+  push:
+    tags:
+      - '6.0.3'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: SITUserCenter 6.0.3 (PHP 8.3)
+          body_path: RELEASE-NOTES-6.0.3.md
+          files: |
+            dist/SITUserCenter-6.0.3-php83.zip
+            dist/SITUserCenter-6.0.3-php83.tar.gz
+            UPGRADE-6.0.2-to-6.0.3.md
