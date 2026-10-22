@@ -10,37 +10,11 @@
 - PHP：8.3
 - 数据库：MySQL 8 / MariaDB 10.6+
 
-6.0.3 **不包含**以下以前单独添加的功能：
-
-- 活动创建、报名、签到、活动导出
-- Eduroam 登录
-- OA 登录
-- 实名认证
-- `auth-only` 认证账户限制
-- 自定义活动/登录页面及其路由
-- Janus 独立 Node 应用
-
-升级后 `/events`、`/admin/activity/*`、`/admin/export`、`/auth/eduroam/login`、`/oa-login`、`/profile/verify-realname` 将不再存在，访问会 404。数据库里旧的活动表、`real_name` 字段可以保留，不影响 6.0.3 运行，后续确认不再使用后再清理。
-
 ## 二、升级前备份
-
-```bash
-cd /www/wwwroot
-tar -czf skin.sitmc.club-backup-$(date +%F).tar.gz \
-  skin.sitmc.club \
-  --exclude=skin.sitmc.club/vendor \
-  --exclude=skin.sitmc.club/node_modules \
-  --exclude=skin.sitmc.club/janus
-
-mysqldump -u DB_USER -p DB_NAME > skin.sitmc.club-$(date +%F).sql
-```
-
 至少确认以下内容有备份：
 
 - `.env`
 - `storage/textures/`
-- `storage/oauth-private.key`
-- `storage/oauth-public.key`
 - `storage/install.lock`
 - `plugins/`
 - 数据库
@@ -61,21 +35,9 @@ tar -xzf SITUserCenter-6.0.3-php83.tar.gz \
 ```bash
 cp -a skin.sitmc.club/.env skin.sitmc.club.603/.env
 rsync -a skin.sitmc.club/storage/textures/ skin.sitmc.club.603/storage/textures/
-cp -a skin.sitmc.club/storage/oauth-private.key skin.sitmc.club.603/storage/ 2>/dev/null || true
-cp -a skin.sitmc.club/storage/oauth-public.key skin.sitmc.club.603/storage/ 2>/dev/null || true
 cp -a skin.sitmc.club/storage/install.lock skin.sitmc.club.603/storage/ 2>/dev/null || true
 
-# 只复制上游兼容插件，不要复制依赖活动/eduroam 的旧定制插件
-rsync -a skin.sitmc.club/plugins/ skin.sitmc.club.603/plugins/ \
-  --exclude='oauth' \
-  --exclude='mojang-verification' \
-  --exclude='sitmc-launcher' \
-  --exclude='yggdrasil-connect' \
-  --exclude='yggdrasil-api' \
-  --exclude='single-player-limit'
-```
-
-> 如果旧站启用了 `oauth`、`mojang-verification`、`sitmc-launcher`、`yggdrasil-*` 等插件，先确认它们是否还兼容 6.0.3。6.0.3 主程序不再包含为这些插件添加的 Socialite 依赖。
+> 如果旧站启用了`mojang-verification`、`yggdrasil-*` 等插件，先确认它们是否还兼容 6.0.3。6.0.3 主程序不再包含为这些插件添加的 Socialite 依赖。
 
 ## 四、迁移和缓存
 
@@ -114,11 +76,7 @@ $PHP artisan route:clear
 
 ## 五、切换站点
 
-确认新目录可以正常访问后，在宝塔里把站点根目录从旧目录切到：
-
-```text
-/www/wwwroot/skin.sitmc.club.603/public
-```
+确认新目录可以正常访问后，切换目录：
 
 或者停站后改目录名。然后：
 
@@ -137,7 +95,6 @@ nginx -t && systemctl reload nginx
 - 上传皮肤、预览、头像正常
 - `/admin` 管理员可访问
 - `storage/logs/laravel.log` 无持续报错
-- 旧活动/eduroam/OA/实名认证地址返回 404，这是预期行为
 
 ## 七、回滚
 
@@ -146,7 +103,3 @@ nginx -t && systemctl reload nginx
 1. 把站点根目录切回旧目录
 2. 恢复旧数据库备份
 3. 重启 PHP-FPM 和 Nginx
-
-## 八、关于自定义功能
-
-如果以后仍需要活动、Eduroam、OA、实名认证等功能，建议做成独立插件或独立模块，不要再直接改主程序源码。这样升级 6.0.3 时不需要再合并自定义路由和视图。
