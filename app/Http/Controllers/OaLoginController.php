@@ -38,7 +38,6 @@ class OaLoginController extends Controller
             CURLOPT_TIMEOUT      => 10,
         ]);
         $img = curl_exec($ch);
-        curl_close($ch);
 
         return response($img)->header('Content-Type', 'image/jpeg');
     }
@@ -98,7 +97,6 @@ class OaLoginController extends Controller
             CURLOPT_FOLLOWLOCATION => false,
         ]);
         $html = curl_exec($ch);
-        curl_close($ch);
 
         if (! preg_match('/name="execution" value="(.*?)"/', $html, $m1)) {
             return false;
@@ -136,7 +134,6 @@ class OaLoginController extends Controller
             CURLOPT_TIMEOUT        => 10,
         ]);
         $resp = curl_exec($ch);
-        curl_close($ch);
 
         if (stripos($resp, '安全退出') !== false || stripos($resp, 'auth_username') !== false) {
             return true;

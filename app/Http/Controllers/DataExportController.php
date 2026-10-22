@@ -36,7 +36,7 @@ class DataExportController extends Controller
         fwrite($handle, "\xEF\xBB\xBF");
     
         // 表头
-        fputcsv($handle, ['学号', '姓名', '是否签到', '签到时间', '报名时间']);
+        fputcsv($handle, ['学号', '姓名', '是否签到', '签到时间', '报名时间'], ',', '"', '\\');
     
         foreach ($records as $row) {
             fputcsv($handle, [
@@ -45,7 +45,7 @@ class DataExportController extends Controller
                 $row->signed_in == 1 ? '是' : '否',
                 $row->signed_at,
                 $row->created_at
-            ]);
+            ], ',', '"', '\\');
         }
     
         rewind($handle); // 将文件指针移到开头
