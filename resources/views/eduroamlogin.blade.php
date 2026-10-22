@@ -9,14 +9,14 @@
 
     <link href="https://www.bootcdn.cn/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
-    <link href="/app/style.7eb5d06.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="{{ app_style_url() }}" rel="stylesheet" crossorigin="anonymous">
 
     <link rel="stylesheet"
           href="https://unpkg.com/@fortawesome/fontawesome-free@5.15.4/css/all.min.css"
           crossorigin>
 
 
-    <link rel="shortcut icon" href="https://skin.sitmc.club/app/3.ico">
+    <link rel="shortcut icon" href="{{ app_favicon_url() }}">
 
 
 <style>

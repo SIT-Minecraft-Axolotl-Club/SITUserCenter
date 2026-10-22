@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>社团活动列表</title>
     <link href="https://www.bootcdn.cn/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/app/style.7eb5d06.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="{{ app_style_url() }}" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" crossorigin>
-    <link rel="shortcut icon" href="https://skin.sitmc.club/app/3.ico">
-    <link rel="icon" type="image/png" href="https://skin.sitmc.club/app/3.ico" sizes="192x192">
-    <link rel="apple-touch-icon" href="https://skin.sitmc.club/app/3.ico" sizes="180x180">
+    <link rel="shortcut icon" href="{{ app_favicon_url() }}">
+    <link rel="icon" type="image/png" href="{{ app_favicon_url() }}" sizes="192x192">
+    <link rel="apple-touch-icon" href="{{ app_favicon_url() }}" sizes="180x180">
 
     <style>
         /* ===== Minecraft 暗黑风格（与之前完全一致） ===== */
