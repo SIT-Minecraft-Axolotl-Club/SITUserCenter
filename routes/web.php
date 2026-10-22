@@ -111,10 +111,6 @@ Route::prefix('user')
 
         Route::get('reports', 'ReportController@track')->name('list');
 
-        Route::get('upload', 'FileUploadController@showUploadForm')->name('upload');  // 显示上传页面
-        Route::post('upload', 'FileUploadController@handleUpload')->name('upload.file');  // 处理上传请求
-        Route::get('files', 'FileUploadController@showUserFiles')->name('files');  // 显示上传的文件列表
-
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('', 'UserController@profile')->name('view');
             Route::post('', 'UserController@handleProfile')->name('handle.profile');
@@ -243,7 +239,7 @@ Route::prefix('admin')
             Route::get('data', 'PluginController@getPluginData')->name('data');
 
             Route::view('manage', 'admin.plugins')->name('view');
-            Route::post('manage', 'PluginController@manage')->name('view');
+            Route::post('manage', 'PluginController@manage')->name('manage');
             Route::any('config/{name}', 'PluginController@config')->name('config');
             Route::get('readme/{name}', 'PluginController@readme')->name('readme');
             Route::middleware('role:super-admin')->group(function () {
