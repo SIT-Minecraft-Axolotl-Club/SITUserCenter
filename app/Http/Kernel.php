@@ -67,6 +67,5 @@ class Kernel extends HttpKernel
         'verified' => Middleware\CheckUserVerified::class,
         'scope' => \Laravel\Passport\Http\Middleware\CheckForAnyScope::class,
         'scopes' => \Laravel\Passport\Http\Middleware\CheckScopes::class,
-        'auth-only' => \App\Http\Middleware\RejectAuthOnlyUser::class,
     ];
 }

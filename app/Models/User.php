@@ -36,7 +36,6 @@ class User extends Authenticatable
     use HasApiTokens;
     use SearchString;
 
-    public const AUTH_ONLY = -2;
     public const BANNED = -1;
     public const NORMAL = 0;
     public const ADMIN = 1;
@@ -70,16 +69,6 @@ class User extends Authenticatable
         'verified' => ['boolean' => true],
         'is_dark_mode' => ['boolean' => true],
     ];
-    
-    public function isAuthOnly(): bool
-    {
-        return $this->permission === static::AUTH_ONLY;
-    }
-    
-    public function isBanned(): bool
-    {
-        return $this->permission === static::BANNED;
-    }
 
     public function isAdmin(): bool
     {

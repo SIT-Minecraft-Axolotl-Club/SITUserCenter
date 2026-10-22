@@ -1,9 +1,6 @@
 <?php
 
 use App\Http\Middleware;
-use App\Http\Controllers\DataExportController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\OaLoginController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,63 +16,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('', 'HomeController@index')->name('home');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/links', function () {
-        return view('jump');
-    });
-});
-
-Route::get('/oa-login', [OaLoginController::class, 'showLoginForm'])->name('oa.showLoginForm');
-Route::get('/oa-captcha', [OaLoginController::class, 'getCaptcha'])->name('oa.getCaptcha');
-Route::post('/oa-login', [OaLoginController::class, 'handleLogin'])->name('oa.handleLogin');
-
-
-Route::middleware('auth')->group(function () {
-    Route::get('/admin/activity/create', [\App\Http\Controllers\ActivityController::class, 'create']);
-    Route::post('/admin/activity/create', [\App\Http\Controllers\ActivityController::class, 'store']);
-    Route::get('/admin/activity/list', [\App\Http\Controllers\ActivityController::class, 'index']);
-    Route::post('/admin/activity/{id}/reset-code', [\App\Http\Controllers\ActivityController::class, 'resetCode']);
-});
-        
-Route::middleware('auth')->group(function () {
-    Route::get('/events', [\App\Http\Controllers\ActivityController::class, 'userindex'])->name('events');
-
-    // 活动报名
-    Route::post('/events/{id}/signup', [\App\Http\Controllers\ActivityController::class, 'signup'])->name('event.signup');
-
-    // 签到相关
-    Route::get('/events/{id}/checkin', [\App\Http\Controllers\ActivityController::class, 'checkinForm'])->name('events.checkin'); // 展示签到页
-    Route::post('/events/{id}/checkin', [\App\Http\Controllers\ActivityController::class, 'checkin'])->name('event.checkin');     // 提交签到
-    Route::get('/events/{id}/checkin-code/{code}', [\App\Http\Controllers\ActivityController::class, 'checkinWithCode'])->name('events.checkin.code'); // 快速签到链接
-
-    // 实名认证
-    Route::post('/profile/verify-realname', [App\Http\Controllers\ActivityController::class, 'updateRealName'])
-    ->middleware('auth')
-    ->name('profile.updateRealName');
-        
-    
-    Route::get('/profile/verify-realname', function () {
-        $user = Auth::user();
-        return view('profile.verify-realname', ['user' => $user]);
-    
-    })->middleware('auth')->name('profile.verifyRealNameForm');
-});
-
-
-Route::middleware(['authorize', 'role:admin'])->group(function () {
-    Route::get('/admin/export', [DataExportController::class, 'showExportPage'])->name('admin.showExportPage');
-    Route::post('/admin/export', [DataExportController::class, 'exportActivityData'])->name('admin.exportActivityData');
-});
-
-
 Route::prefix('auth')->name('auth.')->group(function () {
     Route::middleware('guest')->group(function () {
         Route::get('login', 'AuthController@login')->name('login');
         Route::post('login', 'AuthController@handleLogin')->name('handle.login');
 
-        Route::get('/eduroam/login', [LoginController::class, 'showLoginForm'])->name('auth.eduroam.login');
-        Route::post('/eduroam/login', [LoginController::class, 'handleLogin'])->name('auth.eduroam.login.post');
-        
         Route::get('register', 'AuthController@register')->name('register');
         Route::post('register', 'AuthController@handleRegister')->name('handle.register');
 
@@ -102,7 +47,7 @@ Route::prefix('auth')->name('auth.')->group(function () {
 
 Route::prefix('user')
     ->name('user.')
-    ->middleware(['authorize', 'auth-only'])
+    ->middleware(['authorize'])
     ->group(function () {
         Route::get('', 'UserController@index')->name('home');
         Route::post('notifications/{id}', 'NotificationsController@read')->name('notification.read');
@@ -147,32 +92,28 @@ Route::prefix('user')
         Route::view('oauth/manage', 'user.oauth')->middleware('verified');
     });
 
-Route::middleware('auth')->group(function () {
-    Route::prefix('texture')->name('texture.')->group(function () {
-        Route::get('{texture}', 'SkinlibController@info')->name('info');
-        Route::middleware(['authorize', 'verified'])->group(function () {
-            Route::post('', 'SkinlibController@handleUpload')->name('upload');
-            Route::prefix('{texture}')->group(function () {
-                Route::put('type', 'SkinlibController@type')->name('type');
-                Route::put('name', 'SkinlibController@rename')->name('name');
-                Route::put('privacy', 'SkinlibController@privacy')->name('privacy');
-                Route::delete('', 'SkinlibController@delete')->name('delete');
-            });
+Route::prefix('texture')->name('texture.')->group(function () {
+    Route::get('{texture}', 'SkinlibController@info')->name('info');
+    Route::middleware(['authorize', 'verified'])->group(function () {
+        Route::post('', 'SkinlibController@handleUpload')->name('upload');
+        Route::prefix('{texture}')->group(function () {
+            Route::put('type', 'SkinlibController@type')->name('type');
+            Route::put('name', 'SkinlibController@rename')->name('name');
+            Route::put('privacy', 'SkinlibController@privacy')->name('privacy');
+            Route::delete('', 'SkinlibController@delete')->name('delete');
         });
     });
 });
 
-Route::middleware('auth')->group(function () {
-    Route::prefix('skinlib')->name('skinlib.')->group(function () {
-        Route::view('', 'skinlib.index')->name('home');
-        Route::get('info/{texture}', 'SkinlibController@info')->name('info');
-        Route::get('show/{texture}', 'SkinlibController@show')->name('show');
-        Route::get('list', 'SkinlibController@library')->name('list');
+Route::prefix('skinlib')->name('skinlib.')->group(function () {
+    Route::view('', 'skinlib.index')->name('home');
+    Route::get('info/{texture}', 'SkinlibController@info')->name('info');
+    Route::get('show/{texture}', 'SkinlibController@show')->name('show');
+    Route::get('list', 'SkinlibController@library')->name('list');
 
-        Route::middleware(['authorize', 'verified'])->group(function () {
-            Route::get('upload', 'SkinlibController@upload')->name('upload');
-            Route::post('report', 'ReportController@submit')->name('report');
-        });
+    Route::middleware(['authorize', 'verified'])->group(function () {
+        Route::get('upload', 'SkinlibController@upload')->name('upload');
+        Route::post('report', 'ReportController@submit')->name('report');
     });
 });
 

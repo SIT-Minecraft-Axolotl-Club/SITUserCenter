@@ -73,30 +73,3 @@ if (!function_exists('option_localized')) {
         return option($key.'_'.config('app.locale'), option($key, $default), $raw);
     }
 }
-
-if (!function_exists('app_style_url')) {
-    function app_style_url(): string
-    {
-        static $url = null;
-
-        if ($url !== null) {
-            return $url;
-        }
-
-        $files = glob(public_path('app/style.*.css')) ?: [];
-        if (count($files) > 0) {
-            usort($files, fn ($a, $b) => filemtime($b) <=> filemtime($a));
-
-            return $url = asset('app/'.basename($files[0]));
-        }
-
-        return $url = asset('app/style.css');
-    }
-}
-
-if (!function_exists('app_favicon_url')) {
-    function app_favicon_url(): string
-    {
-        return asset('app/favicon.ico');
-    }
-}

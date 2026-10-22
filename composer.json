@@ -26,12 +26,10 @@
     "intervention/image": "^2.7",
     "laravel/framework": "^10.0",
     "laravel/passport": "^11.0",
-    "laravel/socialite": "^5.8",
     "lorisleiva/laravel-search-string": "^1.0",
     "nesbot/carbon": "^2.0",
     "nunomaduro/collision": "^7.0",
     "rcrowe/twigbridge": "^0.14",
-    "socialiteproviders/manager": "^4.4",
     "spatie/laravel-ignition": "^2.0",
     "spatie/laravel-translation-loader": "^2.7",
     "symfony/process": "^6.0",
@@ -79,9 +77,7 @@
   },
   "extra": {
     "laravel": {
-      "dont-discover": [
-        "laravel/socialite"
-      ]
+      "dont-discover": []
     }
   },
   "repositories": {
